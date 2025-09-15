@@ -13,7 +13,7 @@ function Get-LatestVersion {
     param ([string] $BuildType)
 
     if ($BuildType -eq 'master') {
-        return Get-LatestVersionStringFromGit
+        return Get-LatestCommitHashFromGit
     } elseif ($BuildType -eq 'stable') {
         return Get-LatestVersionStringFromSourceForge
     } else {
@@ -47,8 +47,11 @@ function Get-LatestBuildVersion {
             return $null
         }
         
-        $latestMasterPrerelease = ($allReleases | Where-Object { $_.prerelease -eq $true })
-        return $latestMasterPrerelease[0].tag_name
+        $latestMasterPrerelease = ($allReleases | Where-Object { $_.prerelease -eq $true }) | Select-Object -First 1
+        $commitHash = if ($latestMasterPrerelease.body -match 'MPV Commit\s*:\s*([0-9a-f]{7,40})') {
+            $matches[1]
+        }
+        return $commitHash
     } else {
         throw "Unknown BuildType: $BuildType"
     }
@@ -88,7 +91,7 @@ function Test-BuildRequired {
     $LatestVersion = Get-LatestVersion -BuildType $BuildType
     $LatestBuildVersion = Get-LatestBuildVersion -BuildType $BuildType
 
-    if(-not $LatestVersion) {
+    if(-not $LatestBuildVersion) {
         # This is the first build, there are no releases
         return true
     }
@@ -100,4 +103,4 @@ function Test-BuildRequired {
     }
 }
 
-Export-ModuleMember -Function Get-LatestVersion, Test-BuildRequired, Get-ReleaseNotesVersionString, Get-LatestCommitHashOrTagName
+Export-ModuleMember -Function Get-LatestVersion, Test-BuildRequired, Get-ReleaseNotesVersionString, Get-LatestCommitHashOrTagName, Get-LatestBuildVersion
