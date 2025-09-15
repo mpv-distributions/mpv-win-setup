@@ -93,7 +93,7 @@ function Test-BuildRequired {
 
     if(-not $LatestBuildVersion) {
         # This is the first build, there are no releases
-        return true
+        return $true
     }
 
     if($LatestVersion -eq $LatestBuildVersion) {
@@ -103,4 +103,4 @@ function Test-BuildRequired {
     }
 }
 
-Export-ModuleMember -Function Get-LatestVersion, Test-BuildRequired, Get-ReleaseNotesVersionString, Get-LatestCommitHashOrTagName, Get-LatestBuildVersion
+Export-ModuleMember -Function Get-LatestVersion, Test-BuildRequired, Get-ReleaseNotesVersionString, Get-LatestCommitHashOrTagName
